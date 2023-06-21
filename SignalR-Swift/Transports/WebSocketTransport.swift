@@ -13,6 +13,7 @@ import Alamofire
 private typealias WebSocketStartClosure = (String?, Error?) -> ()
 
 public class WebSocketTransport: HttpTransport, WebSocketDelegate {
+    
     var reconnectDelay = 2.0
     private var connectionInfo: WebSocketConnectionInfo?
     private var webSocket: WebSocket?
@@ -129,7 +130,6 @@ public class WebSocketTransport: HttpTransport, WebSocketDelegate {
 
             if let encodedRequest = request?.request {
                 self.webSocket = WebSocket(request: encodedRequest)
-                self.webSocket!.disableSSLCertValidation = connection?.webSocketAllowsSelfSignedSSL ?? false
                 self.webSocket!.delegate = self
                 self.webSocket!.connect()
             }
@@ -200,5 +200,9 @@ public class WebSocketTransport: HttpTransport, WebSocketDelegate {
     }
     
     public func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
+    }
+    
+    public func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocket) {
+        // TODO: - this stub was missing
     }
 }
