@@ -87,20 +87,39 @@ public class ServerSentEventsTransport: HttpTransport {
                               timeout: 240,
                               headers: ["Connection": "Keep-Alive"])
             .validate()
-            .responseStream() { [weak self, weak connection] dataResponse in
+            .responseStream() { [weak self, weak connection] stream in
                 guard let strongSelf = self, let strongConnection = connection else { return }
                 
-                strongSelf.cancelTimeoutOperation()
-                
-                if let error = dataResponse.error as NSError?, error.code != NSURLErrorCancelled {
-                    strongConnection.didReceiveError(error: error)
-                }
-                
-                if strongSelf.stop {
-                    strongSelf.completeAbort()
-                } else if !strongSelf.tryCompleteAbort() && !isReconnecting {
-                    strongSelf.reconnect(connection: strongConnection, data: connectionData)
-                }
+                switch stream.event {
+                    case let .stream(result):
+                        switch result {
+                        case let .success(data):
+                            
+                            self?.sseQueue.async { [weak connection] in
+                                guard let strongSelf = self, let strongConnection = connection else { return }
+                                
+                                strongSelf.buffer.append(data: data)
+                                
+                                while let line = strongSelf.buffer.readLine() {
+                                    guard let message = ServerSentEvent.tryParse(line: line) else { continue }
+                                    DispatchQueue.main.async { strongSelf.process(message: message, connection: strongConnection) }
+                                }
+                            }
+                            
+                        }
+                    case let .complete(completion):
+                        strongSelf.cancelTimeoutOperation()
+                        
+                        if let error = stream.error as NSError?, error.code != NSURLErrorCancelled {
+                            strongConnection.didReceiveError(error: error)
+                        }
+                        
+                        if strongSelf.stop {
+                            strongSelf.completeAbort()
+                        } else if !strongSelf.tryCompleteAbort() && !isReconnecting {
+                            strongSelf.reconnect(connection: strongConnection, data: connectionData)
+                        }
+                    }
             }
     }
     
