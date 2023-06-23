@@ -107,7 +107,7 @@ public class ServerSentEventsTransport: HttpTransport {
                             }
                             
                         }
-                    case let .complete(completion):
+                case .complete(_):
                         strongSelf.cancelTimeoutOperation()
                         
                         if let error = stream.error as NSError?, error.code != NSURLErrorCancelled {
