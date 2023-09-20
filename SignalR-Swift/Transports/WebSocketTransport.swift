@@ -48,6 +48,10 @@ public class WebSocketTransport: HttpTransport, WebSocketDelegate {
         
         completionHandler?(nil, nil)
     }
+    
+    public func didReceive(event: Starscream.WebSocketEvent, client: Starscream.WebSocketClient) {
+        
+    }
 
     override public func abort(connection: ConnectionProtocol, timeout: Double, connectionData: String?) {
         self.stopWebSocket()
