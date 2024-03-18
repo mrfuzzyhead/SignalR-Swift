@@ -11,6 +11,7 @@ let package = Package(
   targets: [
     .target(
       name: "SignalRSwift",
-      dependencies: []),
+      dependencies: [],
+      path: "SignalR-Swift"),
   ]
 )
