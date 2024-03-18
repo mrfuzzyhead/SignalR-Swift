@@ -4,12 +4,13 @@ import PackageDescription
 let package = Package(
   name: "SignalR-Swift",
   products: [
-    .library(name: "SignalRSwift", targets: ["SignalRSwift"]),
+    .library(
+       name: "SignalRSwift", 
+      targets: ["SignalRSwift"]),
   ],
   targets: [
     .target(
       name: "SignalRSwift",
-      dependencies: [],
-      path: "Sources"),
+      dependencies: []),
   ]
 )
